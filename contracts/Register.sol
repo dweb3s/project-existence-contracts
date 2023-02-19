@@ -36,7 +36,7 @@ contract Register is AccessControl {
     event RecordInvalidated(bytes32 documentHash);
 
 
-    constructor(address _organisation, string memory _metadata) {
+    constructor (address _organisation, string memory _metadata) {
         organisation = _organisation;
         metadata = _metadata;
 
@@ -45,7 +45,7 @@ contract Register is AccessControl {
         _setupRole(CAN_INVALIDATE_RECORD_ROLE, msg.sender);
     }
 
-    function createRecord(
+    function createRecord (
         bytes32 _documentHash,
         string calldata _sourceDocument,
         string calldata _referenceDocument,
@@ -62,7 +62,7 @@ contract Register is AccessControl {
         require(record.createdAt == 0, "Record already exists");
         require(pastRecord.nextDocumentHash == 0, "Previous record already attached");
 
-        Record memory newRecord = Record(
+        Record memory newRecord = Record (
             _documentHash,
 
             msg.sender, //creator
@@ -79,10 +79,11 @@ contract Register is AccessControl {
             _pastDocumentHash,
             0 //nextDocumentHash
         );
+                
         records[_documentHash] = newRecord;
 
 
-        if (pastRecord.documentHash != 0x00) {
+        if (_pastDocumentHash != 0x00) {
             require(pastRecord.createdAt != 0, "Past record not found");
             
             if (pastRecord.expiresAt == 0 || pastRecord.expiresAt > block.timestamp) {
