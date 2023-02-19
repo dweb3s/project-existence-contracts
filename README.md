@@ -2,7 +2,11 @@
 
 - Start Opera and attach js-console to it:
 ```shell
-./run_fantom_opera_localhost
+./run_fantom_opera_localhost.sh
+```
+or
+```shell
+docker run -p 5050:5050 -p 18545:18545 -p 19090:19090 -ti catangent/opera:latest
 ```
 
 - Check balance of one of 4 accounts:
