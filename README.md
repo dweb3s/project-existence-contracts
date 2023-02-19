@@ -2,7 +2,7 @@
 
 - Start Opera and attach js-console to it:
 ```shell
-./run_fantom_opera_localhost.sh
+docker compose up -d && docker attach fantom_opera_localhost
 ```
 or
 ```shell
@@ -16,7 +16,7 @@ ftm.getBalance(ftm.accounts[4]);
 
 - Send 1 token from one account to another:
 ```js
-ftm.sendTransaction({from: ftm.accounts[1], to: ftm.accounts[2], value: web3.toWei(1.0, "ether")}
+ftm.sendTransaction({from: ftm.accounts[1], to: ftm.accounts[2], value: web3.toWei(1.0, "ether")});
 ```
 
 - To stop Opera, press ctrl-d.
