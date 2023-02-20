@@ -29,11 +29,12 @@ contract Register is AccessControl {
     address public organisation;
     string public metadata;
 
-    mapping(bytes32 => Record) public records;
+    mapping (bytes32 => Record) public records;
 
-    event RecordCreated(bytes32 documentHash);
-    event RecordUpdated(bytes32 documentHash);
-    event RecordInvalidated(bytes32 documentHash);
+    event RecordCreated (bytes32 documentHash);
+    event RecordUpdated (bytes32 documentHash);
+    event RecordInvalidated (bytes32 documentHash);
+    event RegisterMetadataUpdated (address register, string metadata);
 
 
     constructor (address _organisation, string memory _metadata) {
@@ -127,4 +128,16 @@ contract Register is AccessControl {
         
         emit RecordUpdated(_documentHash);
     }
+
+    function updateMetadata (
+        string memory _metadata
+    ) 
+        public 
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        metadata = _metadata;
+        
+        emit RegisterMetadataUpdated(address(this)/*address of register*/, _metadata);
+    }
+
 }
