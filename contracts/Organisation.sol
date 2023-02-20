@@ -29,7 +29,7 @@ contract Organisation is Ownable {
         emit RegisterDeployed(address(newRegister));
     }
 
-    function updateMetadata (
+    function updateOrganisationMetadata (
         string memory _metadata
     ) 
         public 
