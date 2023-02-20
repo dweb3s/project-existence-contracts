@@ -83,7 +83,7 @@ contract Register is AccessControl {
         records[_documentHash] = newRecord;
 
 
-        if (_pastDocumentHash != 0x00) {
+        if (newRecord.pastDocumentHash != 0x00) {
             require(pastRecord.createdAt != 0, "Past record not found");
             
             if (pastRecord.expiresAt == 0 || pastRecord.expiresAt > block.timestamp) {
