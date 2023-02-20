@@ -129,7 +129,7 @@ contract Register is AccessControl {
         emit RecordUpdated(_documentHash);
     }
 
-    function updateMetadata (
+    function updateRegisterMetadata (
         string memory _metadata
     ) 
         public 
