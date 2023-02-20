@@ -103,7 +103,7 @@ describe("Register", function() {
     it("Should update the register metadata by the responsible admin", async function () {
       const { register } = await loadFixture(deployRegisterFixture);
 
-      await register.updateMetadata(SECOND_METADATA);
+      await register.updateRegisterMetadata(SECOND_METADATA);
       expect(String(register.metadata) == SECOND_METADATA);
 
     });
@@ -111,13 +111,13 @@ describe("Register", function() {
     it("Should not update the register metadata if called not by the responsible admin", async function () {
       const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
 
-      await expect(register.connect(otherAccounts[0]).updateMetadata(SECOND_METADATA)).to.be.reverted;
+      await expect(register.connect(otherAccounts[0]).updateRegisterMetadata(SECOND_METADATA)).to.be.reverted;
     });
 
     it("Should emit an event on register metadata update", async function () {
       const { register } = await loadFixture(deployRegisterFixture);
 
-      await expect(register.updateMetadata(SECOND_METADATA))
+      await expect(register.updateRegisterMetadata(SECOND_METADATA))
       .to.emit(register, "RegisterMetadataUpdated");
     });
 
@@ -141,88 +141,63 @@ describe("Register", function() {
     describe("Events", function () {
 
       it("Should emit an event on record creation", async function () {
-  
         const { register } = await loadFixture(deployRegisterFixture);
   
         await expect(register.createRecord(
-  
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         ))
-  
         .to.emit(register, "RecordCreated")
         .withArgs(DOCUMENT_HASH);
-  
       });
 
       it("Should emit an event on record update (for either previous record or just record)", async function () {
-    
-        const { register, recordCreator, recordInvalidator } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE()
-        const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
+        const { register } = await loadFixture(deployRegisterFixture);
 
-        await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, recordInvalidator.address);
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-
-        await register.connect(recordCreator).createRecord(
-
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-
         )
 
-        await expect(register.connect(recordCreator).createRecord(
-
+        await expect(register.createRecord(
           SECOND_DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           DOCUMENT_HASH
-
         ))
         .to.emit(register, "RecordUpdated")
         .withArgs(DOCUMENT_HASH);
 
-        await expect(register.connect(recordInvalidator).invalidateRecord(SECOND_DOCUMENT_HASH))
+        await expect(register.invalidateRecord(SECOND_DOCUMENT_HASH))
         .to.emit(register, "RecordUpdated")
         .withArgs(SECOND_DOCUMENT_HASH);
-
       });
 
       it("Should emit an event on record invalidation", async function () {
-    
-        const { register, recordInvalidator, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
-  
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-        await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, recordInvalidator.address);
+        const { register } = await loadFixture(deployRegisterFixture);
 
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
 
-        await expect(register.connect(recordInvalidator).invalidateRecord(DOCUMENT_HASH))
+        await expect(register.invalidateRecord(DOCUMENT_HASH))
         .to.emit(register, "RecordInvalidated")
         .withArgs(DOCUMENT_HASH);
-
       });
 
     });
@@ -230,24 +205,22 @@ describe("Register", function() {
     describe("New record creation", function () {
 
       it("Should create a new record by the responsible record creator", async function () {
-
         const { register, recordCreator } = await loadFixture(deployRegisterFixture);
         const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
   
         await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
         //grant CAN_CREATE_RECORD_ROLE to recordCreator account by admin
         await register.connect(recordCreator).createRecord(
-  
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
-        )
-        const record = await register.records(DOCUMENT_HASH);
+        ) 
         //create a record with provided metadata but from recordCreator account
+        const record = await register.records(DOCUMENT_HASH);
+        //get the record
                 
         expect(record).not.to.be.null;
         expect(record.creator).to.equal(recordCreator.address);   
@@ -257,58 +230,44 @@ describe("Register", function() {
         expect(record.expiresAt).to.equal(EXPIRES_AT);
         expect(record.pastDocumentHash).to.equal(PAST_DOCUMENT_HASH);
         //check if the data in record is the same as was provided
-  
       });
 
       it("Should not create a record given the document hash that already exists", async function () {
+        const { register } = await loadFixture(deployRegisterFixture);
 
-        const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
-  
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-        //grant CAN_CREATE_RECORD_ROLE to recordCreator account by admin
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
         
-        await expect(register.connect(recordCreator).createRecord(
-  
+        await expect(register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         ))
         .to.be.reverted
-  
       });
 
       it("Should not create a new record if called not by the responsible record creator", async function () {
-
         const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
-  
+
         await expect(register.connect(otherAccounts[0]).createRecord(
-  
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )).to.be.reverted;
         //check whether the transaction is reverted in case if the caller has no CAN_CREATE_RECORD_ROLE
         //verify that random user cannot create a new record
-  
       });
 
     });
@@ -316,23 +275,18 @@ describe("Register", function() {
     describe("Record invalidation", function () {
 
       it("Should invalidate a record by the responsible record invalidator", async function () {
-
-        const { register, recordInvalidator, recordCreator } = await loadFixture(deployRegisterFixture);
+        const { register, recordInvalidator } = await loadFixture(deployRegisterFixture);
         const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
   
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
         await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, recordInvalidator.address);
 
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
 
         await register.connect(recordInvalidator).invalidateRecord(DOCUMENT_HASH);
@@ -343,56 +297,39 @@ describe("Register", function() {
         expect(record.expiresAt).to.not.equal(0);
         expect(record.updatedAt).to.not.equal(0);
         expect(record.expiresAt).to.equal(record.updatedAt);
-  
       });
 
       it("Should not invalidate already invalidated/expired record", async function () {
+        const { register } = await loadFixture(deployRegisterFixture);
 
-        const { register, recordInvalidator, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
-  
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-        await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, recordInvalidator.address);
-
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
 
-        await register.connect(recordInvalidator).invalidateRecord(DOCUMENT_HASH);
+        await register.invalidateRecord(DOCUMENT_HASH);
         //call the invalidateRecord function by the recordInvalidator
         
-        await expect(register.connect(recordInvalidator).invalidateRecord(DOCUMENT_HASH)).to.be.reverted;
-  
+        await expect(register.invalidateRecord(DOCUMENT_HASH)).to.be.reverted;
       });
 
       it("Should not invalidate a record if called not by the responsible record invalidator", async function () {
-
-        const { register, recordCreator, otherAccounts } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
+        const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
   
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
   
         await expect(register.connect(otherAccounts[0]).invalidateRecord(DOCUMENT_HASH)).to.be.reverted;
-  
       });
 
     });
@@ -400,7 +337,6 @@ describe("Register", function() {
     describe("New record attachment", function () {
 
       it("Should create a new record attached to another record by the responsible record creator", async function () {
-
         const { register, recordCreator } = await loadFixture(deployRegisterFixture);
         const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
   
@@ -408,25 +344,21 @@ describe("Register", function() {
         //grant CAN_CREATE_RECORD_ROLE to recordCreator account by admin
   
         await register.connect(recordCreator).createRecord(
-  
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
   
         await register.connect(recordCreator).createRecord(
-  
           SECOND_DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           DOCUMENT_HASH
-  
         )
   
         const record = await register.records(DOCUMENT_HASH);
@@ -448,69 +380,49 @@ describe("Register", function() {
         expect(nextRecord.expiresAt).to.equal(EXPIRES_AT);
         expect(nextRecord.pastDocumentHash).to.equal(DOCUMENT_HASH);
         //check if the data in secondRecord is the same as was provided
-  
       });
   
       it("Should not attach a record to the record which already has another record attached to it", async function () {
+        const { register } = await loadFixture(deployRegisterFixture);
   
-        const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
-  
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-        //grant CAN_CREATE_RECORD_ROLE to recordCreator account by admin
-  
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
         
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           SECOND_DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           DOCUMENT_HASH
-  
         )
   
-        await expect(register.connect(recordCreator).createRecord(
-  
+        await expect(register.createRecord(
           THIRD_DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           DOCUMENT_HASH
-  
         )).to.be.reverted;
-  
       });
   
       it("Should not update a 0x00 previous record when the newly created record has no previous record", async function () {
+        const { register } = await loadFixture(deployRegisterFixture);
   
-        const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
-  
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-        //grant CAN_CREATE_RECORD_ROLE to recordCreator account by admin
-  
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
   
         const record = await register.records(PAST_DOCUMENT_HASH);
@@ -521,91 +433,65 @@ describe("Register", function() {
         expect(record.updatedAt).to.equal(0);
         expect(record.nextDocumentHash).to.equal(NULL_HASH);
         //check if the data in 0x00 record is unchanged
-  
       });
   
       it("Should not create a new attached record if at the previousDocumentHash there is no record", async function () {
+        const { register } = await loadFixture(deployRegisterFixture);
   
-        const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
-  
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-        //grant CAN_CREATE_RECORD_ROLE to recordCreator account by admin
-  
-        await expect(register.connect(recordCreator).createRecord(
-  
+        await expect(register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           THIRD_DOCUMENT_HASH
-  
         ))
         .to.be.reverted
-  
       });
 
       it("Should not create a new record attached to another record if called not by the responsible record creator", async function () {
-
         const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
   
         await register.createRecord(
-  
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
         
         await expect(register.connect(otherAccounts[0]).createRecord(
-  
           SECOND_DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           DOCUMENT_HASH
-  
         )).to.be.reverted;
-  
       });
 
       it("Should not change expiresAt for pastRecord if it was already expired", async function () {
+        const { register } = await loadFixture(deployRegisterFixture);
 
-        const { register, recordCreator, recordInvalidator } = await loadFixture(deployRegisterFixture);
-  
-        const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
-  
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
-        await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, recordInvalidator.address);
-
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           PAST_DOCUMENT_HASH
-  
         )
         
-        await register.connect(recordInvalidator).invalidateRecord(DOCUMENT_HASH);
+        await register.invalidateRecord(DOCUMENT_HASH);
         
-        await register.connect(recordCreator).createRecord(
-  
+        await register.createRecord(
           SECOND_DOCUMENT_HASH,
           SOURCE_DOCUMENT,
           REFERENCE_DOCUMENT,
           STARTS_AT,
           EXPIRES_AT,
           DOCUMENT_HASH
-  
         )
 
         const record = await register.records(DOCUMENT_HASH);
@@ -613,7 +499,6 @@ describe("Register", function() {
         expect(record.expiresAt != record.updatedAt);
         //console.log("Record was expired at ", record.expiresAt);
         //console.log("Record was updated at ", record.updatedAt);
-
       });
 
     });
