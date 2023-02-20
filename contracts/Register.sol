@@ -34,6 +34,7 @@ contract Register is AccessControl {
     event RecordCreated (bytes32 documentHash);
     event RecordUpdated (bytes32 documentHash);
     event RecordInvalidated (bytes32 documentHash);
+    
     event RegisterMetadataUpdated (address register, string metadata);
 
 
