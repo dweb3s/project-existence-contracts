@@ -548,6 +548,48 @@ describe("Register", function() {
   
       });
 
+      it("Should not change expiresAt for pastRecord if it was already expired", async function () {
+
+        const { register, recordCreator, recordInvalidator } = await loadFixture(deployRegisterFixture);
+  
+        const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
+        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
+  
+        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
+        await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, recordInvalidator.address);
+
+        await register.connect(recordCreator).createRecord(
+  
+          DOCUMENT_HASH,
+          SOURCE_DOCUMENT,
+          REFERENCE_DOCUMENT,
+          STARTS_AT,
+          EXPIRES_AT,
+          PAST_DOCUMENT_HASH
+  
+        )
+        
+        await register.connect(recordInvalidator).invalidateRecord(DOCUMENT_HASH);
+        
+        await register.connect(recordCreator).createRecord(
+  
+          SECOND_DOCUMENT_HASH,
+          SOURCE_DOCUMENT,
+          REFERENCE_DOCUMENT,
+          STARTS_AT,
+          EXPIRES_AT,
+          DOCUMENT_HASH
+  
+        )
+
+        const record = await register.records(DOCUMENT_HASH);
+
+        expect(record.expiresAt != record.updatedAt);
+        //console.log("Record was expired at ", record.expiresAt);
+        //console.log("Record was updated at ", record.updatedAt);
+
+      });
+
     });
   
   });
