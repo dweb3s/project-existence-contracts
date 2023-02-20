@@ -6,9 +6,10 @@ import { ethers } from "hardhat";
 
 describe("Register", function() {
 
-  async function deployRegisterFixture () {
+  const METADATA = "METADATA_URL";
+  const SECOND_METADATA = "METADATA_URL_2";
 
-    const METADATA = "METADATA_URL" //set the METADATA for test
+  async function deployRegisterFixture () {
 
     const [admin, organisation, recordCreator, recordInvalidator, ...otherAccounts] = await ethers.getSigners();
     //get signers/accounts
@@ -16,7 +17,7 @@ describe("Register", function() {
     const Register = await ethers.getContractFactory("Register");
     const register = await Register.deploy(organisation.address, METADATA);
 
-    return {register, organisation, METADATA, admin, recordCreator, recordInvalidator, otherAccounts};
+    return {register, organisation, admin, recordCreator, recordInvalidator, otherAccounts};
 
   }
 
@@ -32,7 +33,7 @@ describe("Register", function() {
 
       it("Should set the metadata", async function () {
 
-        const { register, METADATA } = await loadFixture(deployRegisterFixture);
+        const { register } = await loadFixture(deployRegisterFixture);
   
         expect(await register.metadata()).to.equal(METADATA);
 
@@ -93,6 +94,31 @@ describe("Register", function() {
 
       await expect(register.connect(otherAccounts[0]).grantRole(CAN_INVALIDATE_RECORD_ROLE, ACCOUNT_ADDRESS)).to.be.reverted;
 
+    });
+
+  });
+
+  describe("Update of register metadata", function () {
+
+    it("Should update the register metadata by the responsible admin", async function () {
+      const { register } = await loadFixture(deployRegisterFixture);
+
+      await register.updateMetadata(SECOND_METADATA);
+      expect(String(register.metadata) == SECOND_METADATA);
+
+    });
+
+    it("Should not update the register metadata if called not by the responsible admin", async function () {
+      const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
+
+      await expect(register.connect(otherAccounts[0]).updateMetadata(SECOND_METADATA)).to.be.reverted;
+    });
+
+    it("Should emit an event on register metadata update", async function () {
+      const { register } = await loadFixture(deployRegisterFixture);
+
+      await expect(register.updateMetadata(SECOND_METADATA))
+      .to.emit(register, "RegisterMetadataUpdated");
     });
 
   });
