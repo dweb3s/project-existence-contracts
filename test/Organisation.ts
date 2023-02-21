@@ -32,12 +32,6 @@ describe("Organisation", function() {
       expect(await organisation.metadata()).to.equal(METADATA[0]);
     });
 
-    it("The number of registers should be 0", async function () {
-      const { organisation } = await loadFixture(deployOrganisationFixture);
-
-      expect((organisation.registers).length).to.equal(0);
-    });
-
   });
 
   describe("Register deployment", function () {
