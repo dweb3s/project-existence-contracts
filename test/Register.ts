@@ -10,13 +10,13 @@ describe("Register", function() {
 
   async function deployRegisterFixture () {
 
-    const [admin, organisation, recordCreator, recordInvalidator, ...otherAccounts] = await ethers.getSigners();
+    const [admin, organisation, recordCreator, recordInvalidator, registerEditor, ...otherAccounts] = await ethers.getSigners();
     //get signers/accounts
 
     const Register = await ethers.getContractFactory("Register");
     const register = await Register.deploy(organisation.address, METADATA[0]);
 
-    return {register, organisation, admin, recordCreator, recordInvalidator, otherAccounts};
+    return {register, organisation, admin, recordCreator, recordInvalidator, registerEditor, otherAccounts};
 
   }
 
@@ -34,73 +34,90 @@ describe("Register", function() {
         expect(await register.metadata()).to.equal(METADATA[0]);
       });
 
-      it("Should grant DEFAULT_ADMIN_ROLE, CAN_CREATE_RECORD_ROLE and CAN_INVALIDATE_RECORD_ROLE to the admin", async function () {
+      it("Should grant DEFAULT_ADMIN_ROLE, RECORD_CRETOR, RECORD_INVALIDATOR and REGISTER_EDITOR to the admin", async function () {
         const { register, admin } = await loadFixture(deployRegisterFixture);
         const DEFAULT_ADMIN_ROLE = await register.DEFAULT_ADMIN_ROLE();
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE();
-        const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
+        const RECORD_CRETOR = await register.RECORD_CRETOR();
+        const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
+        const REGISTER_EDITOR = await register.REGISTER_EDITOR();
 
         expect(await register.hasRole(DEFAULT_ADMIN_ROLE, admin.address)).to.be.true;
-        expect(await register.hasRole(CAN_CREATE_RECORD_ROLE, admin.address)).to.be.true;
-        expect(await register.hasRole(CAN_INVALIDATE_RECORD_ROLE, admin.address)).to.be.true;
+        expect(await register.hasRole(RECORD_CRETOR, admin.address)).to.be.true;
+        expect(await register.hasRole(RECORD_INVALIDATOR, admin.address)).to.be.true;
+        expect(await register.hasRole(REGISTER_EDITOR, admin.address)).to.be.true;
       });
 
   });
 
   describe("Roles", function () {
 
-    it("Should grant CAN_CREATE_RECORD_ROLE to the account by the admin", async function () {
+    it("Should grant RECORD_CRETOR to the account by the admin", async function () {
       const { register, recordCreator } = await loadFixture(deployRegisterFixture);
       const ACCOUNT_ADDRESS = recordCreator.address;
-      const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE();
+      const RECORD_CRETOR = await register.RECORD_CRETOR();
 
-      await register.grantRole(CAN_CREATE_RECORD_ROLE, ACCOUNT_ADDRESS);
+      await register.grantRole(RECORD_CRETOR, ACCOUNT_ADDRESS);
 
-      expect(await register.hasRole(CAN_CREATE_RECORD_ROLE, ACCOUNT_ADDRESS)).to.be.true;
+      expect(await register.hasRole(RECORD_CRETOR, ACCOUNT_ADDRESS)).to.be.true;
     });
 
-    it("Should grant CAN_INVALIDATE_RECORD_ROLE to the account by the admin", async function () {
+    it("Should grant RECORD_INVALIDATOR to the account by the admin", async function () {
       const { register, recordInvalidator } = await loadFixture(deployRegisterFixture);
       const ACCOUNT_ADDRESS = recordInvalidator.address;
-      const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
+      const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
 
-      await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, ACCOUNT_ADDRESS);
+      await register.grantRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS);
 
-      expect(await register.hasRole(CAN_INVALIDATE_RECORD_ROLE, ACCOUNT_ADDRESS)).to.be.true;
+      expect(await register.hasRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS)).to.be.true;
+    });
+
+    it("Should grant REGISTER_EDITOR to the account by the admin", async function () {
+      const { register, registerEditor } = await loadFixture(deployRegisterFixture);
+      const ACCOUNT_ADDRESS = registerEditor.address;
+      const REGISTER_EDITOR = await register.REGISTER_EDITOR();
+
+      await register.grantRole(REGISTER_EDITOR, ACCOUNT_ADDRESS);
+
+      expect(await register.hasRole(REGISTER_EDITOR, ACCOUNT_ADDRESS)).to.be.true;
     });
 
     it("Not the admin should not be able to grant any role", async function () {
       const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
-      const ACCOUNT_ADDRESS = otherAccounts[1].address; //assignes ACCOUNT_ADDRESS to some test user account
-      const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE(); //get CAN_CREATE_RECORD_ROLE from register
-      const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE(); //get CAN_INVALIDATE_RECORD_ROLE from register
+      const ACCOUNT_ADDRESS = otherAccounts[1].address;
+      const RECORD_CRETOR = await register.RECORD_CRETOR();
+      const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
+      const REGISTER_EDITOR = await register.REGISTER_EDITOR();
 
-      await expect(register.connect(otherAccounts[0]).grantRole(CAN_CREATE_RECORD_ROLE, ACCOUNT_ADDRESS)).to.be.reverted;
-      await expect(register.connect(otherAccounts[0]).grantRole(CAN_INVALIDATE_RECORD_ROLE, ACCOUNT_ADDRESS)).to.be.reverted;
+      await expect(register.connect(otherAccounts[0]).grantRole(RECORD_CRETOR, ACCOUNT_ADDRESS)).to.be.reverted;
+      await expect(register.connect(otherAccounts[0]).grantRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS)).to.be.reverted;
+      await expect(register.connect(otherAccounts[0]).grantRole(REGISTER_EDITOR, ACCOUNT_ADDRESS)).to.be.reverted;
     });
 
   });
 
   describe("Update of register metadata", function () {
 
-    it("Should update the register metadata by the responsible admin", async function () {
-      const { register } = await loadFixture(deployRegisterFixture);
+    it("Should update the register metadata by the responsible register editor", async function () {
+      const { register, registerEditor } = await loadFixture(deployRegisterFixture);
+      const REGISTER_EDITOR = await register.REGISTER_EDITOR();
 
-      await register.updateRegisterMetadata(METADATA[1]);
+      await register.grantRole(REGISTER_EDITOR, registerEditor.address);
+
+      await register.editRegisterMetadata(METADATA[1]);
       expect(String(register.metadata) == METADATA[1]);
     });
 
-    it("Should not update the register metadata if called not by the responsible admin", async function () {
+    it("Should not update the register metadata if called not by the responsible register editor", async function () {
       const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
 
-      await expect(register.connect(otherAccounts[0]).updateRegisterMetadata(METADATA[1])).to.be.reverted;
+      await expect(register.connect(otherAccounts[0]).editRegisterMetadata(METADATA[1])).to.be.reverted;
     });
 
     it("Should emit an event on register metadata update", async function () {
       const { register } = await loadFixture(deployRegisterFixture);
 
-      await expect(register.updateRegisterMetadata(METADATA[1]))
-      .to.emit(register, "RegisterMetadataUpdated");
+      await expect(register.editRegisterMetadata(METADATA[1]))
+      .to.emit(register, "RegisterMetadataEdited");
     });
 
   });
@@ -188,9 +205,9 @@ describe("Register", function() {
 
       it("Should create a new record by the responsible record creator", async function () {
         const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
+        const RECORD_CRETOR = await register.RECORD_CRETOR() //get RECORD_CRETOR from register
   
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);
+        await register.grantRole(RECORD_CRETOR, recordCreator.address);
         await register.connect(recordCreator).createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
@@ -253,9 +270,9 @@ describe("Register", function() {
 
       it("Should invalidate a non-attached record by the responsible record invalidator", async function () {
         const { register, recordInvalidator } = await loadFixture(deployRegisterFixture);
-        const CAN_INVALIDATE_RECORD_ROLE = await register.CAN_INVALIDATE_RECORD_ROLE();
+        const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
   
-        await register.grantRole(CAN_INVALIDATE_RECORD_ROLE, recordInvalidator.address);
+        await register.grantRole(RECORD_INVALIDATOR, recordInvalidator.address);
         await register.createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
@@ -309,9 +326,9 @@ describe("Register", function() {
 
       it("Should create a new record attached to another record by the responsible record creator", async function () {
         const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-        const CAN_CREATE_RECORD_ROLE = await register.CAN_CREATE_RECORD_ROLE() //get CAN_CREATE_RECORD_ROLE from register
+        const RECORD_CRETOR = await register.RECORD_CRETOR() //get RECORD_CRETOR from register
   
-        await register.grantRole(CAN_CREATE_RECORD_ROLE, recordCreator.address);  
+        await register.grantRole(RECORD_CRETOR, recordCreator.address);  
         await register.connect(recordCreator).createRecord(
           DOCUMENT_HASH,
           SOURCE_DOCUMENT,
