@@ -23,8 +23,10 @@ struct Record {
 
 contract Register is AccessControl {
 
-    bytes32 public constant CAN_CREATE_RECORD_ROLE = keccak256("CAN_CREATE_RECORD_ROLE");
-    bytes32 public constant CAN_INVALIDATE_RECORD_ROLE = keccak256("CAN_INVALIDATE_RECORD_ROLE");
+    bytes32 public constant RECORD_CRETOR = keccak256("RECORD_CRETOR");
+    bytes32 public constant RECORD_INVALIDATOR = keccak256("RECORD_INVALIDATOR");
+    bytes32 public constant REGISTER_EDITOR = keccak256("REGISTER_EDITOR");
+
 
     address public organisation;
     string public metadata;
@@ -35,7 +37,7 @@ contract Register is AccessControl {
     event RecordUpdated (bytes32 documentHash);
     event RecordInvalidated (bytes32 documentHash);
     
-    event RegisterMetadataUpdated (address register, string metadata);
+    event RegisterMetadataEdited (address register, string metadata);
 
 
     constructor (address _organisation, string memory _metadata) {
@@ -43,8 +45,9 @@ contract Register is AccessControl {
         metadata = _metadata;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(CAN_CREATE_RECORD_ROLE, msg.sender);
-        _setupRole(CAN_INVALIDATE_RECORD_ROLE, msg.sender);
+        _setupRole(RECORD_CRETOR, msg.sender);
+        _setupRole(RECORD_INVALIDATOR, msg.sender);
+        _setupRole(REGISTER_EDITOR, msg.sender);
     }
 
     function createRecord (
@@ -56,7 +59,7 @@ contract Register is AccessControl {
         bytes32 _pastDocumentHash
     ) 
         public 
-        onlyRole(CAN_CREATE_RECORD_ROLE)
+        onlyRole(RECORD_CRETOR)
     {
         Record storage record = records[_documentHash];
         Record storage pastRecord = records[_pastDocumentHash];
@@ -102,7 +105,7 @@ contract Register is AccessControl {
         bytes32 _documentHash
     ) 
         public
-        onlyRole(CAN_INVALIDATE_RECORD_ROLE) 
+        onlyRole(RECORD_INVALIDATOR) 
     {
         Record storage record = records[_documentHash];
         require(record.expiresAt == 0 || record.expiresAt > block.timestamp, "Record already invalidated");
@@ -130,15 +133,15 @@ contract Register is AccessControl {
         emit RecordUpdated(_documentHash);
     }
 
-    function updateRegisterMetadata (
+    function editRegisterMetadata (
         string memory _metadata
     ) 
         public 
-        onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyRole(REGISTER_EDITOR)
     {
         metadata = _metadata;
         
-        emit RegisterMetadataUpdated(address(this)/*address of register*/, _metadata);
+        emit RegisterMetadataEdited(address(this)/*address of register*/, _metadata);
     }
 
 }
