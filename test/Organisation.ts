@@ -10,20 +10,20 @@ describe("Organisation", function() {
 
   async function deployOrganisationFixture () {
 
-    const [owner, ...otherAccounts] = await ethers.getSigners();
+    const [factoryOwner, organisationOwner, ...otherAccounts] = await ethers.getSigners();
 
     const Organisation = await ethers.getContractFactory("Organisation");
-    const organisation = await Organisation.deploy(METADATA[0]);
+    const organisation = await Organisation.deploy(METADATA[0], organisationOwner.address);
 
-    return {organisation, owner, otherAccounts};
+    return {organisation, organisationOwner, otherAccounts};
   }
 
   describe("Deployment", function () {
 
     it("Should set the organisation owner", async function () {
-      const { organisation, owner } = await loadFixture(deployOrganisationFixture);
+      const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
-      expect(await organisation.owner()).to.equal(owner.address);
+      expect(await organisation.owner()).to.equal(organisationOwner.address);
     });
       
     it("Should set the metadata", async function () {
@@ -36,32 +36,32 @@ describe("Organisation", function() {
 
   describe("Register deployment", function () {
       
-    it("Should deploy a new register by the responsible owner", async function () {
-      const { organisation } = await loadFixture(deployOrganisationFixture);
+    it("Should deploy a new register by the responsible organisation owner", async function () {
+      const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
       // Deploy the first register
-      await organisation.deployRegister(METADATA[0]);
+      await organisation.connect(organisationOwner).deployRegister(METADATA[0]);
       // Check that the first register has been added to the array
       expect(await organisation.registers(0)).to.not.be.null;
       expect(await organisation.registers(0)).to.not.equal(ethers.constants.AddressZero);
 
       // Deploy the second register
-      await organisation.deployRegister(METADATA[1]);
+      await organisation.connect(organisationOwner).deployRegister(METADATA[1]);
       // Check that the second register has been added to the array
       expect(await organisation.registers(1)).to.not.be.null;
       expect(await organisation.registers(1)).to.not.equal(ethers.constants.AddressZero);
     });
 
-    it("Should not deploy a new register if called not by the responsible owner", async function () {
+    it("Should not deploy a new register if called not by the responsible organisation owner", async function () {
       const { organisation, otherAccounts } = await loadFixture(deployOrganisationFixture);
 
       await expect(organisation.connect(otherAccounts[0]).deployRegister(METADATA[0])).to.be.reverted;
     });
 
     it("Should emit an event on register deployment", async function () {
-      const { organisation } = await loadFixture(deployOrganisationFixture);
+      const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
-      await expect(organisation.deployRegister(METADATA[0]))
+      await expect(organisation.connect(organisationOwner).deployRegister(METADATA[0]))
       .to.emit(organisation, "RegisterDeployed");
     });
 
@@ -69,24 +69,24 @@ describe("Organisation", function() {
 
   describe("Update of organisation metadata", function () {
 
-    it("Should update the organisation metadata by the responsible owner", async function () {
-      const { organisation } = await loadFixture(deployOrganisationFixture);
+    it("Should update the organisation metadata by the responsible organisation owner", async function () {
+      const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
-      await organisation.updateOrganisationMetadata(METADATA[1]);
+      await organisation.connect(organisationOwner).updateOrganisationMetadata(METADATA[1]);
       expect(String(organisation.metadata) == METADATA[1]);
 
     });
 
-    it("Should not update the organisation metadata if called not by the responsible owner", async function () {
+    it("Should not update the organisation metadata if called not by the responsible organisation owner", async function () {
       const { organisation, otherAccounts } = await loadFixture(deployOrganisationFixture);
 
       await expect(organisation.connect(otherAccounts[0]).updateOrganisationMetadata(METADATA[1])).to.be.reverted;
     });
 
     it("Should emit an event on organisation metadata update", async function () {
-      const { organisation } = await loadFixture(deployOrganisationFixture);
+      const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
-      await expect(organisation.updateOrganisationMetadata(METADATA[1]))
+      await expect(organisation.connect(organisationOwner).updateOrganisationMetadata(METADATA[1]))
       .to.emit(organisation, "OrganisationMetadataUpdated");
     });
 

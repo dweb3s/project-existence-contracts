@@ -13,12 +13,13 @@ contract Organisation is Ownable {
     event OrganisationMetadataUpdated (address organisation, string metadata);
 
 
-    constructor (string memory _metadata) {
+    constructor (string memory _metadata, address _organisationOwner) {
         metadata = _metadata;
+        transferOwnership(_organisationOwner);
     }
 
     function deployRegister (
-        string memory _registerMetadata
+        string calldata _registerMetadata
     )
         public 
         onlyOwner()
@@ -30,7 +31,7 @@ contract Organisation is Ownable {
     }
 
     function updateOrganisationMetadata (
-        string memory _metadata
+        string calldata _metadata
     ) 
         public 
         onlyOwner()
