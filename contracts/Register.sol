@@ -134,7 +134,7 @@ contract Register is AccessControl {
     }
 
     function editRegisterMetadata (
-        string memory _metadata
+        string calldata _metadata
     ) 
         public 
         onlyRole(REGISTER_EDITOR)
