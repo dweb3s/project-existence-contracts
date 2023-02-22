@@ -72,7 +72,7 @@ describe("Organisation", function() {
     it("Should update the organisation metadata by the responsible organisation owner", async function () {
       const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
-      await organisation.connect(organisationOwner).updateOrganisationMetadata(METADATA[1]);
+      await organisation.connect(organisationOwner).editOrganisationMetadata(METADATA[1]);
       expect(String(organisation.metadata) == METADATA[1]);
 
     });
@@ -80,14 +80,14 @@ describe("Organisation", function() {
     it("Should not update the organisation metadata if called not by the responsible organisation owner", async function () {
       const { organisation, otherAccounts } = await loadFixture(deployOrganisationFixture);
 
-      await expect(organisation.connect(otherAccounts[0]).updateOrganisationMetadata(METADATA[1])).to.be.reverted;
+      await expect(organisation.connect(otherAccounts[0]).editOrganisationMetadata(METADATA[1])).to.be.reverted;
     });
 
     it("Should emit an event on organisation metadata update", async function () {
       const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
-      await expect(organisation.connect(organisationOwner).updateOrganisationMetadata(METADATA[1]))
-      .to.emit(organisation, "OrganisationMetadataUpdated");
+      await expect(organisation.connect(organisationOwner).editOrganisationMetadata(METADATA[1]))
+      .to.emit(organisation, "OrganisationMetadataEdited");
     });
 
   });

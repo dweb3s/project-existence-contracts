@@ -10,7 +10,7 @@ contract Organisation is Ownable {
     string public metadata;
 
     event RegisterDeployed (address register);
-    event OrganisationMetadataUpdated (address organisation, string metadata);
+    event OrganisationMetadataEdited (address organisation, string metadata);
 
 
     constructor (string memory _metadata, address _organisationOwner) {
@@ -30,7 +30,7 @@ contract Organisation is Ownable {
         emit RegisterDeployed(address(newRegister));
     }
 
-    function updateOrganisationMetadata (
+    function editOrganisationMetadata (
         string calldata _metadata
     ) 
         public 
@@ -38,7 +38,7 @@ contract Organisation is Ownable {
     {
         metadata = _metadata;
         
-        emit OrganisationMetadataUpdated(address(this)/*address of organisation*/, _metadata);
+        emit OrganisationMetadataEdited(address(this)/*address of organisation*/, _metadata);
     }
     
 }
