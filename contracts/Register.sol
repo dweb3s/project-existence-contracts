@@ -23,7 +23,7 @@ struct Record {
 
 contract Register is AccessControl {
 
-    bytes32 public constant RECORD_CRETOR = keccak256("RECORD_CRETOR");
+    bytes32 public constant RECORD_CREATOR = keccak256("RECORD_CREATOR");
     bytes32 public constant RECORD_INVALIDATOR = keccak256("RECORD_INVALIDATOR");
     bytes32 public constant REGISTER_EDITOR = keccak256("REGISTER_EDITOR");
 
@@ -45,7 +45,7 @@ contract Register is AccessControl {
         metadata = _metadata;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(RECORD_CRETOR, msg.sender);
+        _setupRole(RECORD_CREATOR, msg.sender);
         _setupRole(RECORD_INVALIDATOR, msg.sender);
         _setupRole(REGISTER_EDITOR, msg.sender);
     }
@@ -59,7 +59,7 @@ contract Register is AccessControl {
         bytes32 _pastDocumentHash
     ) 
         public 
-        onlyRole(RECORD_CRETOR)
+        onlyRole(RECORD_CREATOR)
     {
         Record storage record = records[_documentHash];
         Record storage pastRecord = records[_pastDocumentHash];
