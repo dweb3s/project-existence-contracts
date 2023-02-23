@@ -9,18 +9,18 @@ contract OrganisationFactory is Ownable {
     mapping (address => bool) public organisations;
     mapping (address => address[]) public organisationsOfOwner;
 
-    uint public organisationDeploymentFee = 0;
-    uint public registerDeploymentFee = 0;
-    uint public recordDeploymentFee = 0;
+    uint256 public organisationDeploymentFee = 0;
+    uint256 public registerDeploymentFee = 0;
+    uint256 public recordDeploymentFee = 0;
 
     event OrganisationDeployed (address organisation, address organisationOwner);
-    event FeesUpdated(uint organisationDeploymentFee, uint registerDeploymentFee, uint recordCreationFee);
+    event FeesUpdated(uint256 organisationDeploymentFee, uint256 registerDeploymentFee, uint256 recordCreationFee);
 
 
     function setFees (
-        uint _organisationDeploymentFee,
-        uint _registerDeploymentFee,
-        uint _recordDeploymentFee
+        uint256 _organisationDeploymentFee,
+        uint256 _registerDeploymentFee,
+        uint256 _recordDeploymentFee
     )
         public
         onlyOwner()
