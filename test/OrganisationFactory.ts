@@ -41,7 +41,7 @@ describe("OrganisationFactory", function() {
 
   describe("Organisation deployment", function () {
       
-    it("Should deploy a new organisation by the responsible factory owner", async function () {
+    it("Should deploy a new organisation", async function () {
       const { organisationFactory, organisationOwner } = await loadFixture(deployOrganisationFactoryFixture);
 
       const tx = await organisationFactory.deployOrganisation(METADATA[0], organisationOwner.address);
@@ -50,12 +50,16 @@ describe("OrganisationFactory", function() {
       
       expect(organisationAddress).to.not.be.undefined;
       expect(await organisationFactory.organisations(organisationAddress)).to.be.true;
-    });
+      expect(await organisationFactory.organisationsOfOwner(organisationOwner.address, 0)).to.equal(organisationAddress);
+      expect(await organisationFactory.getNumberOfOwnerOrganisations(organisationOwner.address)).to.equal(1);
 
-    it("Should not deploy a new organisation if called not by the responsible factory owner", async function () {
-      const { organisationFactory, otherAccounts, organisationOwner } = await loadFixture(deployOrganisationFactoryFixture);
-
-      await expect(organisationFactory.connect(otherAccounts[0]).deployOrganisation(METADATA[0], organisationOwner.address)).to.be.reverted;
+      /*
+      await organisationFactory.deployOrganisation(METADATA[0], organisationOwner.address);
+      const NUMBER_OF_ORGANISATIONS = await organisationFactory.getNumberOfOwnerOrganisations(organisationOwner.address);
+      for(let i=0; i < NUMBER_OF_ORGANISATIONS.toNumber(); i++){
+        console.log(await organisationFactory.organisationsOfOwner(organisationOwner.address, i));
+      }
+      */
     });
 
     it("Should emit an event on organisation deployment", async function () {

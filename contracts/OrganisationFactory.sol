@@ -7,6 +7,7 @@ import "./Organisation.sol";
 contract OrganisationFactory is Ownable {
 
     mapping (address => bool) public organisations;
+    mapping (address => address[]) public organisationsOfOwner;
 
     uint public organisationDeploymentFee = 0;
     uint public registerDeploymentFee = 0;
@@ -36,12 +37,22 @@ contract OrganisationFactory is Ownable {
         address _organisationOwner
     )
         public
-        onlyOwner()
     {
         Organisation newOrganisation = new Organisation(_organisationMetadata, _organisationOwner);
         organisations[address(newOrganisation)] = true;
+        organisationsOfOwner[_organisationOwner].push(address(newOrganisation));
 
         emit OrganisationDeployed(address(newOrganisation), _organisationOwner);
+    }
+
+    function getNumberOfOwnerOrganisations (
+        address _organisationOwner
+    ) 
+        public
+        view
+        returns (uint)
+    {
+        return organisationsOfOwner[_organisationOwner].length;
     }
 
 }
