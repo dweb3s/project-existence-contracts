@@ -45,14 +45,4 @@ contract OrganisationFactory is Ownable {
         emit OrganisationDeployed(address(newOrganisation), _organisationOwner);
     }
 
-    function getNumberOfOwnerOrganisations (
-        address _organisationOwner
-    ) 
-        public
-        view
-        returns (uint)
-    {
-        return organisationsOfOwner[_organisationOwner].length;
-    }
-
 }

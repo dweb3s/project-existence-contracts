@@ -51,15 +51,6 @@ describe("OrganisationFactory", function() {
       expect(organisationAddress).to.not.be.undefined;
       expect(await organisationFactory.organisations(organisationAddress)).to.be.true;
       expect(await organisationFactory.organisationsOfOwner(organisationOwner.address, 0)).to.equal(organisationAddress);
-      expect(await organisationFactory.getNumberOfOwnerOrganisations(organisationOwner.address)).to.equal(1);
-
-      /*
-      await organisationFactory.deployOrganisation(METADATA[0], organisationOwner.address);
-      const NUMBER_OF_ORGANISATIONS = await organisationFactory.getNumberOfOwnerOrganisations(organisationOwner.address);
-      for(let i=0; i < NUMBER_OF_ORGANISATIONS.toNumber(); i++){
-        console.log(await organisationFactory.organisationsOfOwner(organisationOwner.address, i));
-      }
-      */
     });
 
     it("Should emit an event on organisation deployment", async function () {
