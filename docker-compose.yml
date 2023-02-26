@@ -1,0 +1,11 @@
+services:
+  opera:
+    image: catangent/opera:latest
+    network_mode: "host"
+    #ports:
+    #  - '5050:5050'
+    #  - '18545:18545'
+    #  - '19090:19090'
+    stdin_open: true
+    tty: true
+    container_name: fantom_opera_localhost
