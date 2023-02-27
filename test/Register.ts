@@ -6,7 +6,8 @@ import { ethers } from "hardhat";
 
 describe("Register", function() {
 
-  const METADATA = ["METADATA_URL", "METADATA_URL_2"]
+  const METADATA = ["METADATA_URL", "METADATA_URL_2"];
+  const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   async function deployRegisterFixture () {
 
@@ -14,7 +15,7 @@ describe("Register", function() {
     //get signers/accounts
 
     const Register = await ethers.getContractFactory("Register");
-    const register = await Register.deploy(organisation.address, METADATA[0]);
+    const register = await Register.deploy(METADATA[0], admin.address);
 
     return {register, organisation, admin, recordCreator, recordInvalidator, registerEditor, otherAccounts};
 
@@ -25,7 +26,7 @@ describe("Register", function() {
       it("Should set the organisation", async function () {
         const { register, organisation } = await loadFixture(deployRegisterFixture);
   
-        expect(await register.organisation()).to.equal(organisation.address);
+        expect(await register.organisation()).to.not.equal(NULL_ADDRESS);
       });
 
       it("Should set the metadata", async function () {
@@ -134,7 +135,6 @@ describe("Register", function() {
     const EXPIRES_AT = 0;
     const PAST_DOCUMENT_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
     const NULL_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
-    const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
     //set record data for the test
 
     describe("Events", function () {

@@ -40,14 +40,14 @@ contract Register is AccessControl {
     event RegisterMetadataEdited (address register, string metadata);
 
 
-    constructor (address _organisation, string memory _metadata) {
-        organisation = _organisation;
+    constructor (string memory _metadata, address _admin) {
+        organisation = msg.sender;
         metadata = _metadata;
 
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(RECORD_CREATOR, msg.sender);
-        _setupRole(RECORD_INVALIDATOR, msg.sender);
-        _setupRole(REGISTER_EDITOR, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(RECORD_CREATOR, _admin);
+        _setupRole(RECORD_INVALIDATOR, _admin);
+        _setupRole(REGISTER_EDITOR, _admin);
     }
 
     function createRecord (
