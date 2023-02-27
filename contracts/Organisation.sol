@@ -9,7 +9,7 @@ contract Organisation is Ownable {
     address[] public registers;
     string public metadata;
 
-    event RegisterDeployed (address register, address registerOwner);
+    event RegisterDeployed (address register, address registerAdmin);
     event OrganisationMetadataEdited (address organisation, string metadata);
 
 
@@ -20,15 +20,15 @@ contract Organisation is Ownable {
 
     function deployRegister (
         string calldata _registerMetadata,
-        address _registerOwner
+        address _registerAdmin
     )
         public 
         onlyOwner()
     {
-        Register newRegister = new Register(_registerMetadata, _registerOwner);
+        Register newRegister = new Register(_registerMetadata, _registerAdmin);
         registers.push(address(newRegister));
 
-        emit RegisterDeployed(address(newRegister), _registerOwner);
+        emit RegisterDeployed(address(newRegister), _registerAdmin);
     }
 
     function editOrganisationMetadata (
