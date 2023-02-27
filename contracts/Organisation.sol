@@ -19,16 +19,15 @@ contract Organisation is Ownable {
     }
 
     function deployRegister (
-        string calldata _registerMetadata,
-        address _registerAdmin
+        string calldata _registerMetadata
     )
         public 
         onlyOwner()
     {
-        Register newRegister = new Register(_registerMetadata, _registerAdmin);
+        Register newRegister = new Register(_registerMetadata, msg.sender);
         registers.push(address(newRegister));
 
-        emit RegisterDeployed(address(newRegister), _registerAdmin);
+        emit RegisterDeployed(address(newRegister), msg.sender);
     }
 
     function editOrganisationMetadata (

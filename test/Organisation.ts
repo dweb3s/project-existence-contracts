@@ -10,12 +10,12 @@ describe("Organisation", function() {
 
   async function deployOrganisationFixture () {
 
-    const [factoryOwner, organisationOwner, registerAdmin, ...otherAccounts] = await ethers.getSigners();
+    const [factoryOwner, organisationOwner, ...otherAccounts] = await ethers.getSigners();
 
     const Organisation = await ethers.getContractFactory("Organisation");
     const organisation = await Organisation.deploy(METADATA[0], organisationOwner.address);
 
-    return {organisation, organisationOwner, registerAdmin, otherAccounts};
+    return {organisation, organisationOwner, otherAccounts};
   }
 
   describe("Deployment", function () {
@@ -37,31 +37,31 @@ describe("Organisation", function() {
   describe("Register deployment", function () {
       
     it("Should deploy a new register by the responsible organisation owner", async function () {
-      const { organisation, organisationOwner, registerAdmin } = await loadFixture(deployOrganisationFixture);
+      const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
       // Deploy the first register
-      await organisation.connect(organisationOwner).deployRegister(METADATA[0], registerAdmin.address);
+      await organisation.connect(organisationOwner).deployRegister(METADATA[0]);
       // Check that the first register has been added to the array
       expect(await organisation.registers(0)).to.not.be.null;
       expect(await organisation.registers(0)).to.not.equal(ethers.constants.AddressZero);
 
       // Deploy the second register
-      await organisation.connect(organisationOwner).deployRegister(METADATA[1], registerAdmin.address);
+      await organisation.connect(organisationOwner).deployRegister(METADATA[1]);
       // Check that the second register has been added to the array
       expect(await organisation.registers(1)).to.not.be.null;
       expect(await organisation.registers(1)).to.not.equal(ethers.constants.AddressZero);
     });
 
     it("Should not deploy a new register if called not by the responsible organisation owner", async function () {
-      const { organisation, otherAccounts, registerAdmin } = await loadFixture(deployOrganisationFixture);
+      const { organisation, otherAccounts } = await loadFixture(deployOrganisationFixture);
 
-      await expect(organisation.connect(otherAccounts[0]).deployRegister(METADATA[0], registerAdmin.address)).to.be.reverted;
+      await expect(organisation.connect(otherAccounts[0]).deployRegister(METADATA[0])).to.be.reverted;
     });
 
     it("Should emit an event on register deployment", async function () {
-      const { organisation, organisationOwner, registerAdmin } = await loadFixture(deployOrganisationFixture);
+      const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
 
-      await expect(organisation.connect(organisationOwner).deployRegister(METADATA[0], registerAdmin.address))
+      await expect(organisation.connect(organisationOwner).deployRegister(METADATA[0]))
       .to.emit(organisation, "RegisterDeployed");
     });
 
