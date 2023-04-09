@@ -4,7 +4,7 @@ var Register = artifacts.require("./Register.sol");
 contract("Register", function(accounts) {
 
   const METADATA = ["METADATA_URL", "METADATA_URL_2"];
-  const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+  const NULL_ADDRESS = '000000000000000000000000000000000000000000';
   let register, admin, recordCreator, recordInvalidator, registerEditor, otherAccounts;
 
   let RECORD_CREATOR, RECORD_INVALIDATOR, REGISTER_EDITOR, DEFAULT_ADMIN_ROLE;
@@ -107,363 +107,365 @@ contract("Register", function(accounts) {
   });
 
 
-  // describe("Records", function () {
+  describe("Records", function () {
     
-  //   const DOCUMENT_HASH = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
-  //   const SECOND_DOCUMENT_HASH = '0x7894567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
-  //   const THIRD_DOCUMENT_HASH = '0x5464567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
-  //   const SOURCE_DOCUMENT = "SOURCE_DOCUMENT_URL";
-  //   const REFERENCE_DOCUMENT = "REFERENCE_DOCUMENT_URL";
-  //   const STARTS_AT = 0;
-  //   const EXPIRES_AT = 0;
-  //   const PAST_DOCUMENT_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
-  //   const NULL_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
-  //   //set record data for the test
+    const DOCUMENT_HASH = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+    const SECOND_DOCUMENT_HASH = '0x7894567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+    const THIRD_DOCUMENT_HASH = '0x5464567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+    const SOURCE_DOCUMENT = "SOURCE_DOCUMENT_URL";
+    const REFERENCE_DOCUMENT = "REFERENCE_DOCUMENT_URL";
+    const STARTS_AT = 0;
+    const EXPIRES_AT = 0;
+    const PAST_DOCUMENT_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const NULL_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
+    //set record data for the test
 
-  //   describe("Events", function () {
+    // describe("Events", function () {
 
-  //     it("Should emit an event on record creation", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
+    //   it("Should emit an event on record creation", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
   
-  //       await expect(register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       ))
-  //       .to.emit(register, "RecordCreated")
-  //       .withArgs(DOCUMENT_HASH);
-  //     });
+    //     await expect(register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     ))
+    //     .to.emit(register, "RecordCreated")
+    //     .withArgs(DOCUMENT_HASH);
+    //   });
 
-  //     it("Should emit an event on record update (for either previous record or just record)", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
+    //   it("Should emit an event on record update (for either previous record or just record)", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
 
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
+    //     await register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )
 
-  //       await expect(register.createRecord(
-  //         SECOND_DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         DOCUMENT_HASH
-  //       ))
-  //       .to.emit(register, "RecordUpdated")
-  //       .withArgs(DOCUMENT_HASH);
+    //     await expect(register.createRecord(
+    //       SECOND_DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       DOCUMENT_HASH
+    //     ))
+    //     .to.emit(register, "RecordUpdated")
+    //     .withArgs(DOCUMENT_HASH);
 
-  //       await expect(register.invalidateRecord(SECOND_DOCUMENT_HASH))
-  //       .to.emit(register, "RecordUpdated")
-  //       .withArgs(SECOND_DOCUMENT_HASH);
-  //     });
+    //     await expect(register.invalidateRecord(SECOND_DOCUMENT_HASH))
+    //     .to.emit(register, "RecordUpdated")
+    //     .withArgs(SECOND_DOCUMENT_HASH);
+    //   });
 
-  //     it("Should emit an event on record invalidation", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
+    //   it("Should emit an event on record invalidation", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
 
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
+    //     await register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )
 
-  //       await expect(register.invalidateRecord(DOCUMENT_HASH))
-  //       .to.emit(register, "RecordInvalidated")
-  //       .withArgs(DOCUMENT_HASH);
-  //     });
+    //     await expect(register.invalidateRecord(DOCUMENT_HASH))
+    //     .to.emit(register, "RecordInvalidated")
+    //     .withArgs(DOCUMENT_HASH);
+    //   });
 
-  //   });
+    // });
 
-  //   describe("New record creation", function () {
+    // describe("New record creation", function () {
 
-  //     it("Should create a new record by the responsible record creator", async function () {
-  //       const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-  //       const RECORD_CREATOR = await register.RECORD_CREATOR() //get RECORD_CREATOR from register
+    //   it("Should create a new record by the responsible record creator", async function () {
+    //     const { register, recordCreator } = await loadFixture(deployRegisterFixture);
+    //     const RECORD_CREATOR = await register.RECORD_CREATOR() //get RECORD_CREATOR from register
   
-  //       await register.grantRole(RECORD_CREATOR, recordCreator.address);
-  //       await register.connect(recordCreator).createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       ) 
-  //       const record = await register.records(DOCUMENT_HASH);
+    //     await register.grantRole(RECORD_CREATOR, recordCreator.address);
+    //     await register.connect(recordCreator).createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     ) 
+    //     const record = await register.records(DOCUMENT_HASH);
                 
-  //       expect(record).not.to.be.null;
-  //       expect(record.creator).to.equal(recordCreator.address);   
-  //       expect(record.sourceDocument).to.equal(SOURCE_DOCUMENT);
-  //       expect(record.referenceDocument).to.equal(REFERENCE_DOCUMENT);
-  //       expect(record.startsAt).to.equal(STARTS_AT);
-  //       expect(record.expiresAt).to.equal(EXPIRES_AT);
-  //       expect(record.pastDocumentHash).to.equal(PAST_DOCUMENT_HASH);
-  //       //check if the data in record is the same as was provided
-  //     });
+    //     expect(record).not.to.be.null;
+    //     expect(record.creator).to.equal(recordCreator.address);   
+    //     expect(record.sourceDocument).to.equal(SOURCE_DOCUMENT);
+    //     expect(record.referenceDocument).to.equal(REFERENCE_DOCUMENT);
+    //     expect(record.startsAt).to.equal(STARTS_AT);
+    //     expect(record.expiresAt).to.equal(EXPIRES_AT);
+    //     expect(record.pastDocumentHash).to.equal(PAST_DOCUMENT_HASH);
+    //     //check if the data in record is the same as was provided
+    //   });
 
-  //     it("Should not create a record given the document hash that already exists", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
+    //   it("Should not create a record given the document hash that already exists", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
 
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
+    //     await register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )
 
-  //       await expect(register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       ))
-  //       .to.be.reverted
-  //     });
+    //     await expect(register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     ))
+    //     .to.be.reverted
+    //   });
 
-  //     it("Should not create a new record if called not by the responsible record creator", async function () {
-  //       const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
+    //   it("Should not create a new record if called not by the responsible record creator", async function () {
+    //     const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
 
-  //       await expect(register.connect(otherAccounts[0]).createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )).to.be.reverted;
-  //     });
+    //     await expect(register.connect(otherAccounts[0]).createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )).to.be.reverted;
+    //   });
 
-  //   });
+    // });
 
-  //   describe("Record invalidation", function () {
+    describe("Record invalidation", function () {
 
-  //     it("Should invalidate a non-attached record by the responsible record invalidator", async function () {
-  //       const { register, recordInvalidator } = await loadFixture(deployRegisterFixture);
-  //       const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
+      it("Should invalidate a non-attached record by the responsible record invalidator", async function () {
+
+        const caller = tronWeb.address.fromHex(recordInvalidator);
+
+        await register.createRecord(
+          DOCUMENT_HASH,
+          SOURCE_DOCUMENT,
+          REFERENCE_DOCUMENT,
+          STARTS_AT,
+          EXPIRES_AT,
+          PAST_DOCUMENT_HASH
+        )
+        let record = await register.records(DOCUMENT_HASH);
+         console.log(record);
+
+        await register.invalidateRecord(DOCUMENT_HASH);
   
-  //       await register.grantRole(RECORD_INVALIDATOR, recordInvalidator.address);
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
-  //       await register.connect(recordInvalidator).invalidateRecord(DOCUMENT_HASH);
-  //       const record = await register.records(DOCUMENT_HASH);
-  
-  //       expect(record.expiresAt).to.not.equal(0);
-  //       expect(record.updatedAt).to.not.equal(0);
-  //       expect(record.expiresAt).to.equal(record.updatedAt);
-  //     });
+         record = await register.records(DOCUMENT_HASH);
+         console.log(record);
 
-  //     it("Should not invalidate already invalidated/expired record", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
+        expect(record.updater).to.not.equal(NULL_ADDRESS);
+        // expect(record.updatedAt.toNumber()).to.not.equal(0);
+        // expect(record.expiresAt.toNumber()).to.equal(record.updatedAt.toNumber());
+      });
 
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
-  //       await register.invalidateRecord(DOCUMENT_HASH);
+      // it("Should not invalidate already invalidated/expired record", async function () {
+      //   await register.createRecord(
+      //     DOCUMENT_HASH,
+      //     SOURCE_DOCUMENT,
+      //     REFERENCE_DOCUMENT,
+      //     STARTS_AT,
+      //     EXPIRES_AT,
+      //     PAST_DOCUMENT_HASH
+      //   )
+      //   await register.invalidateRecord(DOCUMENT_HASH);
         
-  //       await expect(register.invalidateRecord(DOCUMENT_HASH)).to.be.reverted;
-  //     });
-
-  //     it("Should not invalidate a record if called not by the responsible record invalidator", async function () {
-  //       const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
-  
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
-  
-  //       await expect(register.connect(otherAccounts[0]).invalidateRecord(DOCUMENT_HASH)).to.be.reverted;
-  //     });
-
-  //   });
-
-  //   describe("New record attachment", function () {
-
-  //     it("Should create a new record attached to another record by the responsible record creator", async function () {
-  //       const { register, recordCreator } = await loadFixture(deployRegisterFixture);
-  //       const RECORD_CREATOR = await register.RECORD_CREATOR() //get RECORD_CREATOR from register
-  
-  //       await register.grantRole(RECORD_CREATOR, recordCreator.address);  
-  //       await register.connect(recordCreator).createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
-  //       await register.connect(recordCreator).createRecord(
-  //         SECOND_DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         DOCUMENT_HASH
-  //       )
-  //       const record = await register.records(DOCUMENT_HASH);
-  
-  //       expect(record.updater).to.equal(recordCreator.address);
-  //       expect(record.expiresAt).to.not.equal(0);
-  //       expect(record.updatedAt).to.not.equal(0);
-  //       expect(record.nextDocumentHash).to.equal(SECOND_DOCUMENT_HASH);
-  //       //check if the data in firstRecord was changed correctly
-  
-  //       const nextRecord = await register.records(SECOND_DOCUMENT_HASH);
-  
-  //       expect(nextRecord).not.to.be.null;
-  //       expect(nextRecord.creator).to.equal(recordCreator.address);   
-  //       expect(nextRecord.sourceDocument).to.equal(SOURCE_DOCUMENT);
-  //       expect(nextRecord.referenceDocument).to.equal(REFERENCE_DOCUMENT);
-  //       expect(nextRecord.startsAt).to.equal(STARTS_AT);
-  //       expect(nextRecord.expiresAt).to.equal(EXPIRES_AT);
-  //       expect(nextRecord.pastDocumentHash).to.equal(DOCUMENT_HASH);
-  //       //check if the data in secondRecord is the same as was provided
-  //     });
-  
-  //     it("Should not attach a record to the record which already has another record attached to it", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
-  
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
-  //       await register.createRecord(
-  //         SECOND_DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         DOCUMENT_HASH
-  //       )
-
-  //       await expect(register.createRecord(
-  //         THIRD_DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         DOCUMENT_HASH
-  //       )).to.be.reverted;
-  //     });
-  
-  //     it("Should not update a 0x00 previous record when the newly created record has no previous record", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
-  
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )  
-  //       const record = await register.records(PAST_DOCUMENT_HASH);
-  
-  //       expect(record.updater).to.equal(NULL_ADDRESS);
-  //       expect(record.createdAt).to.equal(0);
-  //       expect(record.updatedAt).to.equal(0);
-  //       expect(record.nextDocumentHash).to.equal(NULL_HASH);
-  //       //check if the data in 0x00 record is unchanged
-  //     });
-  
-  //     it("Should not create a new attached record if at the previousDocumentHash there is no record", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
-  
-  //       await expect(register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         THIRD_DOCUMENT_HASH
-  //       ))
-  //       .to.be.reverted
-  //     });
-
-  //     it("Should not create a new record attached to another record if called not by the responsible record creator", async function () {
-  //       const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
-  
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
         
-  //       await expect(register.connect(otherAccounts[0]).createRecord(
-  //         SECOND_DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         DOCUMENT_HASH
-  //       )).to.be.reverted;
-  //     });
+      // });
 
-  //     it("Should not change expiresAt for pastRecord if it was already expired", async function () {
-  //       const { register } = await loadFixture(deployRegisterFixture);
-
-  //       await register.createRecord(
-  //         DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         PAST_DOCUMENT_HASH
-  //       )
-  //       await register.invalidateRecord(DOCUMENT_HASH);
-  //       await register.createRecord(
-  //         SECOND_DOCUMENT_HASH,
-  //         SOURCE_DOCUMENT,
-  //         REFERENCE_DOCUMENT,
-  //         STARTS_AT,
-  //         EXPIRES_AT,
-  //         DOCUMENT_HASH
-  //       )
-
-  //       const record = await register.records(DOCUMENT_HASH);
-
-  //       expect(record.expiresAt != record.updatedAt);
-  //       //console.log("Record was expired at ", record.expiresAt);
-  //       //console.log("Record was updated at ", record.updatedAt);
-  //     });
-
-  //   });
+      // it("Should not invalidate a record if called not by the responsible record invalidator", async function () {
+      //   const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
   
-  // });
+      //   await register.createRecord(
+      //     DOCUMENT_HASH,
+      //     SOURCE_DOCUMENT,
+      //     REFERENCE_DOCUMENT,
+      //     STARTS_AT,
+      //     EXPIRES_AT,
+      //     PAST_DOCUMENT_HASH
+      //   )
+  
+      //   await expect(register.connect(otherAccounts[0]).invalidateRecord(DOCUMENT_HASH)).to.be.reverted;
+      // });
+
+    });
+
+    // describe("New record attachment", function () {
+
+    //   it("Should create a new record attached to another record by the responsible record creator", async function () {
+    //     const { register, recordCreator } = await loadFixture(deployRegisterFixture);
+    //     const RECORD_CREATOR = await register.RECORD_CREATOR() //get RECORD_CREATOR from register
+  
+    //     await register.grantRole(RECORD_CREATOR, recordCreator.address);  
+    //     await register.connect(recordCreator).createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )
+    //     await register.connect(recordCreator).createRecord(
+    //       SECOND_DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       DOCUMENT_HASH
+    //     )
+    //     const record = await register.records(DOCUMENT_HASH);
+  
+    //     expect(record.updater).to.equal(recordCreator.address);
+    //     expect(record.expiresAt).to.not.equal(0);
+    //     expect(record.updatedAt).to.not.equal(0);
+    //     expect(record.nextDocumentHash).to.equal(SECOND_DOCUMENT_HASH);
+    //     //check if the data in firstRecord was changed correctly
+  
+    //     const nextRecord = await register.records(SECOND_DOCUMENT_HASH);
+  
+    //     expect(nextRecord).not.to.be.null;
+    //     expect(nextRecord.creator).to.equal(recordCreator.address);   
+    //     expect(nextRecord.sourceDocument).to.equal(SOURCE_DOCUMENT);
+    //     expect(nextRecord.referenceDocument).to.equal(REFERENCE_DOCUMENT);
+    //     expect(nextRecord.startsAt).to.equal(STARTS_AT);
+    //     expect(nextRecord.expiresAt).to.equal(EXPIRES_AT);
+    //     expect(nextRecord.pastDocumentHash).to.equal(DOCUMENT_HASH);
+    //     //check if the data in secondRecord is the same as was provided
+    //   });
+  
+    //   it("Should not attach a record to the record which already has another record attached to it", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
+  
+    //     await register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )
+    //     await register.createRecord(
+    //       SECOND_DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       DOCUMENT_HASH
+    //     )
+
+    //     await expect(register.createRecord(
+    //       THIRD_DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       DOCUMENT_HASH
+    //     )).to.be.reverted;
+    //   });
+  
+    //   it("Should not update a 0x00 previous record when the newly created record has no previous record", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
+  
+    //     await register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )  
+    //     const record = await register.records(PAST_DOCUMENT_HASH);
+  
+    //     expect(record.updater).to.equal(NULL_ADDRESS);
+    //     expect(record.createdAt).to.equal(0);
+    //     expect(record.updatedAt).to.equal(0);
+    //     expect(record.nextDocumentHash).to.equal(NULL_HASH);
+    //     //check if the data in 0x00 record is unchanged
+    //   });
+  
+    //   it("Should not create a new attached record if at the previousDocumentHash there is no record", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
+  
+    //     await expect(register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       THIRD_DOCUMENT_HASH
+    //     ))
+    //     .to.be.reverted
+    //   });
+
+    //   it("Should not create a new record attached to another record if called not by the responsible record creator", async function () {
+    //     const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
+  
+    //     await register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )
+        
+    //     await expect(register.connect(otherAccounts[0]).createRecord(
+    //       SECOND_DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       DOCUMENT_HASH
+    //     )).to.be.reverted;
+    //   });
+
+    //   it("Should not change expiresAt for pastRecord if it was already expired", async function () {
+    //     const { register } = await loadFixture(deployRegisterFixture);
+
+    //     await register.createRecord(
+    //       DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       PAST_DOCUMENT_HASH
+    //     )
+    //     await register.invalidateRecord(DOCUMENT_HASH);
+    //     await register.createRecord(
+    //       SECOND_DOCUMENT_HASH,
+    //       SOURCE_DOCUMENT,
+    //       REFERENCE_DOCUMENT,
+    //       STARTS_AT,
+    //       EXPIRES_AT,
+    //       DOCUMENT_HASH
+    //     )
+
+    //     const record = await register.records(DOCUMENT_HASH);
+
+    //     expect(record.expiresAt != record.updatedAt);
+    //     //console.log("Record was expired at ", record.expiresAt);
+    //     //console.log("Record was updated at ", record.updatedAt);
+    //   });
+
+    // });
+  
+  });
 
 });
