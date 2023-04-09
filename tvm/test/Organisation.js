@@ -10,7 +10,7 @@ contract("Organisation", function(accounts) {
   before(async function () {
     [organisationOwner, ...otherAccounts] = accounts.map((account) => tronWeb.address.toHex(account));
   
-    organisation = await Organisation.new(METADATA[0], organisationOwner, { from: organisationOwner });
+    organisation = await Organisation.new(METADATA[0], organisationOwner);
   })
 
   describe("Deployment", function () {

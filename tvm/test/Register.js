@@ -1,13 +1,17 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-import { expect } from "chai";
-import { ethers } from "hardhat";
+var Register = artifacts.require("./Register.sol");
 
 
-describe("Register", function() {
+contract("Register", function() {
 
   const METADATA = ["METADATA_URL", "METADATA_URL_2"];
   const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+  let organisation, admin, recordCreator, recordInvalidator, registerEditor, otherAccounts;
+
+  before(async function () {
+    [admin, recordCreator, recordInvalidator, registerEditor, otherAccounts] = accounts.map((account) => tronWeb.address.toHex(account));
+  
+    register = await Register.new(METADATA[0], admin);
+  })
 
   async function deployRegisterFixture () {
 
