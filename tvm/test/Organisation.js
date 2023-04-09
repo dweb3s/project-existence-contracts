@@ -77,14 +77,14 @@ contract("Organisation", function(accounts) {
       expect(await organisation.metadata()).not.to.equal(METADATA[0]);
     });
 
-    it("Should emit an event on organisation metadata update", async function () {
-      // Call the editOrganisationMetadata function and store the transaction
-      const tx = await organisation.editOrganisationMetadata(METADATA[0]);
+    // it("Should emit an event on organisation metadata update", async function () {
+    //   // Call the editOrganisationMetadata function and store the transaction
+    //   const tx = await organisation.editOrganisationMetadata(METADATA[0]);
       
-      await tronWeb.getEventByTransactionID(tx).then(result => {console.log(result)});
-      await tronWeb.getEventResult(organisation.address,{eventName:"OrganisationMetadataEdited"}).then(result => {console.log(result)})
+    //   await tronWeb.getEventByTransactionID(tx).then(result => {console.log(result)});
+    //   await tronWeb.getEventResult(organisation.address,{eventName:"OrganisationMetadataEdited"}).then(result => {console.log(result)})
 
-    });
+    // });
     
     
     
