@@ -8,7 +8,7 @@ contract("Organisation", function(accounts) {
   let organisation, organisationOwner, otherAccounts;
 
   before(async function () {
-    [organisationOwner, ...otherAccounts] = accounts.map((account) => tronWeb.address.toHex(account));
+    [organisationOwner, ...otherAccounts] = accounts.slice(0, -1).map(account => tronWeb.address.toHex(account));
   
     organisation = await Organisation.new(METADATA[0], organisationOwner);
   })
