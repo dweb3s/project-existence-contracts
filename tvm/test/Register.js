@@ -67,18 +67,18 @@ contract("Register", function(accounts) {
     });
 
     it("Not the admin should not be able to grant any role", async function () {
-      console.log(otherAccounts[1]);
       const ACCOUNT_ADDRESS = otherAccounts[1];
       const RECORD_CREATOR = await register.RECORD_CREATOR();
       const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
       const REGISTER_EDITOR = await register.REGISTER_EDITOR();
 
+      await register.grantRole(RECORD_CREATOR, ACCOUNT_ADDRESS, {from: accounts[5]});
+      await register.grantRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS, {from: accounts[5]});
+      await register.grantRole(REGISTER_EDITOR, ACCOUNT_ADDRESS, {from: accounts[5]});
 
-      const tx = await register.grantRole(RECORD_CREATOR, ACCOUNT_ADDRESS, {from: accounts[5]});
-      console.log(tx);
-      // await expect(register.connect(otherAccounts[0]).grantRole(RECORD_CREATOR, ACCOUNT_ADDRESS)).to.be.reverted;
-      // await expect(register.connect(otherAccounts[0]).grantRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS)).to.be.reverted;
-      // await expect(register.connect(otherAccounts[0]).grantRole(REGISTER_EDITOR, ACCOUNT_ADDRESS)).to.be.reverted;
+      expect(await register.hasRole(RECORD_CREATOR, ACCOUNT_ADDRESS)).to.be.false;
+      expect(await register.hasRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS)).to.be.false;
+      expect(await register.hasRole(REGISTER_EDITOR, ACCOUNT_ADDRESS)).to.be.false;
     });
 
   });
