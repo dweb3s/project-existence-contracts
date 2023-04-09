@@ -40,15 +40,17 @@ contract("Organisation", function(accounts) {
 
   describe("Register deployment", function () {
       
-    // it("Should deploy a new register by the responsible organisation owner", async function () {      
-    //   // Deploy the first register
-    //   await organisation.deployRegister(METADATA[0]).send();
+    it("Should deploy a new register by the responsible organisation owner", async function () {      
+      // Deploy the first register
+      await organisation.deployRegister(METADATA[0]).send();
 
-    //   console.log(await organisation.registers(0).call());
+      console.log(tronWeb.defaultAddress.hex);
+      console.log(organisationOwner);
+      console.log(await organisation.registers(0).call());
       
-    //   // expect(await organisation.registers(0)).to.not.be.null;
-    //   // expect(await organisation.registers(0).call()).to.not.equal(NULL_ADDRESS);
-    // });
+      // expect(await organisation.registers(0).call()).to.not.be.null;
+      // expect(await organisation.registers(0).call()).to.not.equal(NULL_ADDRESS);
+    });
 
     // it("Should not deploy a new register if called not by the responsible organisation owner", async function () {
     //   const { organisation, otherAccounts } = await loadFixture(deployOrganisationFixture);
@@ -68,47 +70,38 @@ contract("Organisation", function(accounts) {
   describe("Update of organisation metadata", function () {
 
     it("Should update the organisation metadata by the responsible organisation owner", async function () {
-      const tx = await organisation.editOrganisationMetadata(METADATA[1]).send();
-      console.log(tx);
+      await organisation.editOrganisationMetadata(METADATA[1]).send();
 
-      console.log(await organisation.metadata().call());
       expect(await organisation.metadata().call()).to.equal(METADATA[1]);
     });
 
-    // it("Should not update the organisation metadata if called not by the responsible organisation owner", async function () {
-    //   // await organisation.editOrganisationMetadata(METADATA[1]).send({from: otherAccounts[0]});
-    //   // expect(await organisation.metadata().call()).not.to.equal(METADATA[1]);
-    // });
+    it("Should not update the organisation metadata if called not by the responsible organisation owner", async function () {
+      const functionSelector = "editOrganisationMetadata(bytes)";
+      const options = {};
+      const parameters = [
+        {
+          type: "string",
+          value: METADATA[0],
+        },
+      ];
+      await tronWeb.transactionBuilder.triggerSmartContract(
+        organisation.address, 
+        functionSelector, 
+        options, 
+        parameters,
+        otherAccounts[0]
+      );
 
-    // it("Should deploy a new organisation and emit an event on organisation deployment", function (done) {
-    //   this.timeout(15000)
+      expect(await organisation.metadata().call()).not.to.equal(METADATA[0]);
+    });
 
-    //   Organisation.deployed()
-    //     .then(organisation => {
-    //       return tronWeb.contract().at(organisation.address)
-    //           .then(async organisation2 => {
-    //             const orgEditedEvent = await organisation2.OrganisationMetadataEdited().watch((err, res) => {
-    //               if(res) {
-    //                 try {
-    //                   console.log(res.result);// assert.equal(res.result.organisationOwner, tronWeb.address.toHex(organisationOwner));
-    //                   // assert.equal(res.result.organisation, organisationAddress);
+    // it("Should emit an event on organisation metadata update", async function () {
+      
+    //   const tx = await organisation.editOrganisationMetadata(METADATA[0]).send();
+    //   await tronWeb.getEventByTransactionID(tx).then(result => {console.log(result)})
+    //   await tronWeb.getEventResult(organisation.address,{eventName:"OrganisationMetadataEdited",size:2}).then(result => {console.log(result)})
 
-    //                   orgEditedEvent.stop();
-    //                   done();
-    //                 } catch (error) {
-    //                   orgEditedEvent.stop();
-    //                   done(error);
-    //                 }
-    //               }
-    //             });
-    
-    //             await expect(organisation.editOrganisationMetadata(METADATA[1]))
-    //             // const organisationAddress = await organisationFactory.organisationsOfOwner(tronWeb.address.toHex(organisationOwner), 0);
-                
-    //           });
-    //     });
     // });
 
   });
-
 });
