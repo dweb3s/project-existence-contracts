@@ -9,31 +9,18 @@ contract("Organisation", function(accounts) {
 
   before(async function () {
     [organisationOwner, ...otherAccounts] = accounts.map((account) => tronWeb.address.toHex(account));
-
-
-    // Deploy a new Organisation contract with the required parameters
-    const organisationContract = await tronWeb.contract().new({
-      abi: Organisation.abi,
-      bytecode: Organisation.bytecode,
-      feeLimit: 1000000000, // Adjust the fee limit as needed
-      callValue: 0,
-      userFeePercentage: 1,
-      originEnergyLimit: 10000000, // Adjust the energy limit as needed
-      parameters: [METADATA[0], organisationOwner],
-    });
-
-    // Create a TronWeb contract instance using the ABI and deployed contract address
-    organisation = await tronWeb.contract(Organisation.abi, organisationContract.address);
+  
+    organisation = await Organisation.new(METADATA[0], organisationOwner, { from: organisationOwner });
   })
 
   describe("Deployment", function () {
 
     it("Should have the correct owner", async function() {
-      expect(await organisation.owner().call()).to.equal(organisationOwner);
+      expect(await organisation.owner()).to.equal(organisationOwner);
   });
       
     it("Should set the metadata", async function () {
-      expect(await organisation.metadata().call()).to.equal(METADATA[0]);
+      expect(await organisation.metadata()).to.equal(METADATA[0]);
     });
 
   });
@@ -42,14 +29,16 @@ contract("Organisation", function(accounts) {
       
     it("Should deploy a new register by the responsible organisation owner", async function () {      
       // Deploy the first register
-      await organisation.deployRegister(METADATA[0]).send();
-
-      console.log(tronWeb.defaultAddress.hex);
-      console.log(organisationOwner);
-      console.log(await organisation.registers(0).call());
+      await organisation.deployRegister(METADATA[0]);
       
-      // expect(await organisation.registers(0).call()).to.not.be.null;
-      // expect(await organisation.registers(0).call()).to.not.equal(NULL_ADDRESS);
+      expect(await organisation.registers(0)).to.not.be.null;
+      expect(await organisation.registers(0)).to.not.equal(NULL_ADDRESS);
+
+      // Deploy the second register
+      await organisation.deployRegister(METADATA[1]);
+      
+      expect(await organisation.registers(0)).to.not.be.null;
+      expect(await organisation.registers(0)).to.not.equal(NULL_ADDRESS);
     });
 
     // it("Should not deploy a new register if called not by the responsible organisation owner", async function () {
@@ -70,9 +59,9 @@ contract("Organisation", function(accounts) {
   describe("Update of organisation metadata", function () {
 
     it("Should update the organisation metadata by the responsible organisation owner", async function () {
-      await organisation.editOrganisationMetadata(METADATA[1]).send();
+      await organisation.editOrganisationMetadata(METADATA[1]);
 
-      expect(await organisation.metadata().call()).to.equal(METADATA[1]);
+      expect(await organisation.metadata()).to.equal(METADATA[1]);
     });
 
     it("Should not update the organisation metadata if called not by the responsible organisation owner", async function () {
@@ -92,7 +81,7 @@ contract("Organisation", function(accounts) {
         otherAccounts[0]
       );
 
-      expect(await organisation.metadata().call()).not.to.equal(METADATA[0]);
+      expect(await organisation.metadata()).not.to.equal(METADATA[0]);
     });
 
     // it("Should emit an event on organisation metadata update", async function () {
