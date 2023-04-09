@@ -37,15 +37,16 @@ contract("Organisation", function(accounts) {
       // Deploy the second register
       await organisation.deployRegister(METADATA[1]);
       
-      expect(await organisation.registers(0)).to.not.be.null;
-      expect(await organisation.registers(0)).to.not.equal(NULL_ADDRESS);
+      expect(await organisation.registers(1)).to.not.be.null;
+      expect(await organisation.registers(1)).to.not.equal(NULL_ADDRESS);
     });
 
-    // it("Should not deploy a new register if called not by the responsible organisation owner", async function () {
-    //   const { organisation, otherAccounts } = await loadFixture(deployOrganisationFixture);
-
-    //   await expect(organisation.connect(otherAccounts[0]).deployRegister(METADATA[0])).to.be.reverted;
-    // });
+    it("Should not deploy a new register if called not by the responsible organisation owner", async function () {
+      organisation.deployRegister(METADATA[0], {from: accounts[1]});
+      
+      console.log(await organisation.registers(2));
+    });
+    
 
     // it("Should emit an event on register deployment", async function () {
     //   const { organisation, organisationOwner } = await loadFixture(deployOrganisationFixture);
@@ -65,21 +66,7 @@ contract("Organisation", function(accounts) {
     });
 
     it("Should not update the organisation metadata if called not by the responsible organisation owner", async function () {
-      const functionSelector = "editOrganisationMetadata(bytes)";
-      const options = {};
-      const parameters = [
-        {
-          type: "string",
-          value: METADATA[0],
-        },
-      ];
-      await tronWeb.transactionBuilder.triggerSmartContract(
-        organisation.address, 
-        functionSelector, 
-        options, 
-        parameters,
-        otherAccounts[0]
-      );
+      organisation.editOrganisationMetadata(METADATA[0], {from: accounts[1]});
 
       expect(await organisation.metadata()).not.to.equal(METADATA[0]);
     });
