@@ -7,6 +7,8 @@ contract("Register", function(accounts) {
   const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
   let register, admin, recordCreator, recordInvalidator, registerEditor, otherAccounts;
 
+  let RECORD_CREATOR, RECORD_INVALIDATOR, REGISTER_EDITOR, DEFAULT_ADMIN_ROLE;
+
   before(async function () {
     [admin, recordCreator, recordInvalidator, registerEditor, ...otherAccounts] = accounts.slice(0, -1).map(account => tronWeb.address.toHex(account));
   
@@ -24,10 +26,10 @@ contract("Register", function(accounts) {
       });
 
       it("Should grant DEFAULT_ADMIN_ROLE, RECORD_CREATOR, RECORD_INVALIDATOR and REGISTER_EDITOR to the admin", async function () {
-        const DEFAULT_ADMIN_ROLE = await register.DEFAULT_ADMIN_ROLE();
-        const RECORD_CREATOR = await register.RECORD_CREATOR();
-        const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
-        const REGISTER_EDITOR = await register.REGISTER_EDITOR();
+        DEFAULT_ADMIN_ROLE = await register.DEFAULT_ADMIN_ROLE();
+        RECORD_CREATOR = await register.RECORD_CREATOR();
+        RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
+        REGISTER_EDITOR = await register.REGISTER_EDITOR();
 
         expect(await register.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.be.true;
         expect(await register.hasRole(RECORD_CREATOR, admin)).to.be.true;
@@ -41,8 +43,7 @@ contract("Register", function(accounts) {
 
     it("Should grant RECORD_CREATOR to the account by the admin", async function () {
       const ACCOUNT_ADDRESS = recordCreator;
-      const RECORD_CREATOR = await register.RECORD_CREATOR();
-
+      
       await register.grantRole(RECORD_CREATOR, ACCOUNT_ADDRESS);
 
       expect(await register.hasRole(RECORD_CREATOR, ACCOUNT_ADDRESS)).to.be.true;
@@ -50,8 +51,7 @@ contract("Register", function(accounts) {
 
     it("Should grant RECORD_INVALIDATOR to the account by the admin", async function () {
       const ACCOUNT_ADDRESS = recordInvalidator;
-      const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
-
+      
       await register.grantRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS);
 
       expect(await register.hasRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS)).to.be.true;
@@ -59,7 +59,6 @@ contract("Register", function(accounts) {
 
     it("Should grant REGISTER_EDITOR to the account by the admin", async function () {
       const ACCOUNT_ADDRESS = registerEditor;
-      const REGISTER_EDITOR = await register.REGISTER_EDITOR();
 
       await register.grantRole(REGISTER_EDITOR, ACCOUNT_ADDRESS);
 
@@ -68,13 +67,11 @@ contract("Register", function(accounts) {
 
     it("Not the admin should not be able to grant any role", async function () {
       const ACCOUNT_ADDRESS = otherAccounts[1];
-      const RECORD_CREATOR = await register.RECORD_CREATOR();
-      const RECORD_INVALIDATOR = await register.RECORD_INVALIDATOR();
-      const REGISTER_EDITOR = await register.REGISTER_EDITOR();
+      const caller = tronWeb.address.fromHex(otherAccounts[0]);
 
-      await register.grantRole(RECORD_CREATOR, ACCOUNT_ADDRESS, {from: accounts[5]});
-      await register.grantRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS, {from: accounts[5]});
-      await register.grantRole(REGISTER_EDITOR, ACCOUNT_ADDRESS, {from: accounts[5]});
+      await register.grantRole(RECORD_CREATOR, ACCOUNT_ADDRESS, {from: caller});
+      await register.grantRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS, {from: caller});
+      await register.grantRole(REGISTER_EDITOR, ACCOUNT_ADDRESS, {from: caller});
 
       expect(await register.hasRole(RECORD_CREATOR, ACCOUNT_ADDRESS)).to.be.false;
       expect(await register.hasRole(RECORD_INVALIDATOR, ACCOUNT_ADDRESS)).to.be.false;
@@ -83,32 +80,31 @@ contract("Register", function(accounts) {
 
   });
 
-  // describe("Update of register metadata", function () {
+  describe("Update of register metadata", function () {
 
-  //   it("Should update the register metadata by the responsible register editor", async function () {
-  //     const { register, registerEditor } = await loadFixture(deployRegisterFixture);
-  //     const REGISTER_EDITOR = await register.REGISTER_EDITOR();
+    it("Should update the register metadata by the responsible register editor", async function () {
+      const caller = tronWeb.address.fromHex(registerEditor);
 
-  //     await register.grantRole(REGISTER_EDITOR, registerEditor.address);
+      await register.editRegisterMetadata(METADATA[1], {from: caller});
+      expect(await register.metadata()).to.equal(METADATA[1]);
+    });
 
-  //     await register.editRegisterMetadata(METADATA[1]);
-  //     expect(String(register.metadata) == METADATA[1]);
-  //   });
+    it("Should not update the register metadata if called not by the responsible register editor", async function () {
+      const caller = tronWeb.address.fromHex(otherAccounts[0]);
 
-  //   it("Should not update the register metadata if called not by the responsible register editor", async function () {
-  //     const { register, otherAccounts } = await loadFixture(deployRegisterFixture);
+      await register.editRegisterMetadata(METADATA[0], {from: caller});
 
-  //     await expect(register.connect(otherAccounts[0]).editRegisterMetadata(METADATA[1])).to.be.reverted;
-  //   });
+      expect(await register.metadata()).to.not.equal(METADATA[0]);
+    });
 
-  //   it("Should emit an event on register metadata update", async function () {
-  //     const { register } = await loadFixture(deployRegisterFixture);
+    // it("Should emit an event on register metadata update", async function () {
+    //   const { register } = await loadFixture(deployRegisterFixture);
 
-  //     await expect(register.editRegisterMetadata(METADATA[1]))
-  //     .to.emit(register, "RegisterMetadataEdited");
-  //   });
+    //   await expect(register.editRegisterMetadata(METADATA[1]))
+    //   .to.emit(register, "RegisterMetadataEdited");
+    // });
 
-  // });
+  });
 
 
   // describe("Records", function () {
