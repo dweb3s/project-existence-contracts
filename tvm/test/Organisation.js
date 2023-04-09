@@ -42,9 +42,15 @@ contract("Organisation", function(accounts) {
     });
 
     it("Should not deploy a new register if called not by the responsible organisation owner", async function () {
-      organisation.deployRegister(METADATA[0], {from: accounts[1]});
+      let revertErrorOccurred = false;
+      try{
+        await organisation.deployRegister(METADATA[0], {from: accounts[1]});
+        console.log(await organisation.registers(2));
+      } catch (error){
+        revertErrorOccurred = true;
+      }
       
-      console.log(await organisation.registers(2));
+      expect(revertErrorOccurred).to.be.true;
     });
     
 
@@ -71,13 +77,17 @@ contract("Organisation", function(accounts) {
       expect(await organisation.metadata()).not.to.equal(METADATA[0]);
     });
 
-    // it("Should emit an event on organisation metadata update", async function () {
+    it("Should emit an event on organisation metadata update", async function () {
+      // Call the editOrganisationMetadata function and store the transaction
+      const tx = await organisation.editOrganisationMetadata(METADATA[0]);
       
-    //   const tx = await organisation.editOrganisationMetadata(METADATA[0]).send();
-    //   await tronWeb.getEventByTransactionID(tx).then(result => {console.log(result)})
-    //   await tronWeb.getEventResult(organisation.address,{eventName:"OrganisationMetadataEdited",size:2}).then(result => {console.log(result)})
+      await tronWeb.getEventByTransactionID(tx).then(result => {console.log(result)});
+      await tronWeb.getEventResult(organisation.address,{eventName:"OrganisationMetadataEdited"}).then(result => {console.log(result)})
 
-    // });
+    });
+    
+    
+    
 
   });
 });
